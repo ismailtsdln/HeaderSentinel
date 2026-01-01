@@ -56,11 +56,12 @@ func PrintTable(report ScanReport, showFix bool) {
 		fmt.Fprintf(w, "%s\t%s\t%s%s%s\t%s\n", f.Header, f.Status, riskColor, f.Risk, colorReset, f.Recommendation)
 
 		if showFix && (f.NginxConfig != "" || f.ApacheConfig != "") {
+			w.Flush() // Flush to ensure previous line is printed
 			if f.NginxConfig != "" {
-				fmt.Fprintf(w, "  %s[Nginx]%s %s\t\t\t\n", colorBlue, colorReset, f.NginxConfig)
+				fmt.Printf("  %s[Nginx]%s %s\n", colorBlue, colorReset, f.NginxConfig)
 			}
 			if f.ApacheConfig != "" {
-				fmt.Fprintf(w, "  %s[Apache]%s %s\t\t\t\n", colorBlue, colorReset, f.ApacheConfig)
+				fmt.Printf("  %s[Apache]%s %s\n", colorBlue, colorReset, f.ApacheConfig)
 			}
 		}
 	}

@@ -88,6 +88,7 @@ headersentinel -u https://example.com -json report.json -sarif results.sarif
 | `-sarif` | Path to save SARIF report | `""` |
 | `-fail-threshold` | Exit with code 1 if score < threshold | `0` |
 | `-silent` | Suppress progress messages | `false` |
+| `-fix` | Show Nginx/Apache remediation snippets | `false` |
 
 ---
 
