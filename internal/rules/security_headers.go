@@ -19,6 +19,8 @@ type SecurityRule struct {
 	Description    string
 	Recommendation string
 	Exploit        string
+	NginxConfig    string
+	ApacheConfig   string
 }
 
 // SecurityHeaders contains the list of rules to check.
@@ -30,6 +32,8 @@ var SecurityHeaders = []SecurityRule{
 		Description:    "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks.",
 		Recommendation: "Configure a strong CSP policy to restrict where resources can be loaded from.",
 		Exploit:        "XSS, Clickjacking, Data injection.",
+		NginxConfig:    "add_header Content-Security-Policy \"default-src 'self';\";",
+		ApacheConfig:   "Header set Content-Security-Policy \"default-src 'self';\"",
 	},
 	{
 		Header:         "Strict-Transport-Security",
@@ -38,6 +42,8 @@ var SecurityHeaders = []SecurityRule{
 		Description:    "HTTP Strict Transport Security (HSTS) informs browsers that the site should only be accessed using HTTPS.",
 		Recommendation: "Set a Strict-Transport-Security header with a long max-age and includeSubDomains.",
 		Exploit:        "Man-in-the-Middle (MITM) attacks, SSL stripping.",
+		NginxConfig:    "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\" always;",
+		ApacheConfig:   "Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\"",
 	},
 	{
 		Header:         "X-Frame-Options",
@@ -46,6 +52,8 @@ var SecurityHeaders = []SecurityRule{
 		Description:    "X-Frame-Options (XFO) indicates whether or not a browser should be allowed to render a page in a <frame>, <iframe>, <embed> or <object>.",
 		Recommendation: "Use 'DENY' or 'SAMEORIGIN' to prevent clickjacking.",
 		Exploit:        "Clickjacking.",
+		NginxConfig:    "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+		ApacheConfig:   "Header always set X-Frame-Options \"SAMEORIGIN\"",
 	},
 	{
 		Header:         "X-Content-Type-Options",
@@ -54,6 +62,8 @@ var SecurityHeaders = []SecurityRule{
 		Description:    "X-Content-Type-Options stops a browser from trying to MIME-sniff the content type and forces it to stick with the declared content-type.",
 		Recommendation: "Set X-Content-Type-Options to 'nosniff'.",
 		Exploit:        "MIME-sniffing based attacks.",
+		NginxConfig:    "add_header X-Content-Type-Options \"nosniff\" always;",
+		ApacheConfig:   "Header always set X-Content-Type-Options \"nosniff\"",
 	},
 	{
 		Header:         "Referrer-Policy",

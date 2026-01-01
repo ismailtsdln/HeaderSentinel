@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/ismailtsdln/HeaderSentinel/internal/rules"
@@ -15,6 +16,8 @@ type Finding struct {
 	Description    string
 	Recommendation string
 	Exploit        string
+	NginxConfig    string
+	ApacheConfig   string
 }
 
 // HeaderScanner analyzes response headers.
@@ -61,6 +64,27 @@ func (s *HeaderScanner) Scan(resp *http.Response) []Finding {
 				if !strings.Contains(value, "max-age") {
 					finding.Status = "misconfigured"
 					finding.Risk = rules.RiskMedium
+					finding.Description += " (Missing max-age)"
+					findings = append(findings, finding)
+				} else {
+					// Check for at least 1 year (31536000 seconds)
+					if !s.checkHSTSMaxAge(value) {
+						finding.Status = "misconfigured"
+						finding.Risk = rules.RiskLow
+						finding.Description += " (max-age too short, should be >= 1 year)"
+						findings = append(findings, finding)
+					}
+				}
+				if !strings.Contains(value, "includeSubDomains") {
+					finding.Status = "misconfigured"
+					finding.Risk = rules.RiskLow
+					finding.Description += " (Missing includeSubDomains)"
+					findings = append(findings, finding)
+				}
+				if !strings.Contains(value, "preload") {
+					finding.Status = "present"
+					finding.Risk = rules.RiskInfo
+					finding.Description += " (Preload directive not found)"
 					findings = append(findings, finding)
 				}
 			case "X-Frame-Options":
@@ -102,6 +126,8 @@ func (s *HeaderScanner) createFinding(rule rules.SecurityRule, status string, ri
 		Description:    rule.Description,
 		Recommendation: rule.Recommendation,
 		Exploit:        rule.Exploit,
+		NginxConfig:    rule.NginxConfig,
+		ApacheConfig:   rule.ApacheConfig,
 	}
 }
 
@@ -125,4 +151,20 @@ func (s *HeaderScanner) analyzeCookie(value string, rule rules.SecurityRule, fin
 			*findings = append(*findings, finding)
 		}
 	}
+}
+
+func (s *HeaderScanner) checkHSTSMaxAge(value string) bool {
+	parts := strings.Split(value, ";")
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if strings.HasPrefix(part, "max-age=") {
+			ageStr := strings.TrimPrefix(part, "max-age=")
+			age, err := strconv.Atoi(ageStr)
+			if err != nil {
+				return false
+			}
+			return age >= 31536000
+		}
+	}
+	return false
 }

@@ -25,6 +25,8 @@ var (
 	sarifOutputFlag    string
 	concurrencyFlag    int
 	failThresholdFlag  int
+	silentFlag         bool
+	fixFlag            bool
 )
 
 func init() {
@@ -36,6 +38,8 @@ func init() {
 	flag.StringVar(&sarifOutputFlag, "sarif", "", "Output report in SARIF format to file")
 	flag.IntVar(&concurrencyFlag, "c", 10, "Concurrency level for bulk scanning")
 	flag.IntVar(&failThresholdFlag, "fail-threshold", 0, "Exit with non-zero code if security score is below this threshold")
+	flag.BoolVar(&silentFlag, "silent", false, "Show only results, suppress progress messages")
+	flag.BoolVar(&fixFlag, "fix", false, "Show server-specific remediation snippets (Nginx, Apache)")
 }
 
 func main() {
@@ -75,6 +79,10 @@ func main() {
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, concurrencyFlag)
 
+	if !silentFlag && len(targets) > 1 {
+		fmt.Printf("[*] Starting bulk scan of %d targets with concurrency %d...\n", len(targets), concurrencyFlag)
+	}
+
 	for _, target := range targets {
 		wg.Add(1)
 		go func(url string) {
@@ -98,8 +106,8 @@ func main() {
 
 	for rep := range reportChan {
 		reports = append(reports, rep)
-		if jsonOutputFlag == "" && sarifOutputFlag == "" {
-			report.PrintTable(rep)
+		if !silentFlag && jsonOutputFlag == "" && sarifOutputFlag == "" {
+			report.PrintTable(rep, fixFlag)
 		}
 	}
 
