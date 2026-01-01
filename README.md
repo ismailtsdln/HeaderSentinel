@@ -29,6 +29,8 @@ Modern web security relies heavily on correctly configured HTTP headers. **Heade
 - 🔍 **Deep Analysis:** Smart logic to detect misconfigured values, not just missing headers.
 - 🔁 **Redirect Tracker:** Complete visibility into redirect hops and security transitions.
 - 📊 **Security Scoring:** Automated 0-100 score based on risk severity (Critical to Info).
+- 🍪 **Cookie Security:** Analyze `Set-Cookie` flags (`HttpOnly`, `Secure`, `SameSite`).
+- 🤖 **CI/CD Mode:** Automated failure via `-fail-threshold` for pipeline integration.
 - 📁 **Export Ready:** Support for **Table**, **JSON**, and **SARIF** (Static Analysis Results Interchange Format) outputs.
 - 🛠️ **Bulk Processing:** Scan thousands of URLs concurrently using simple input files.
 - 📦 **Zero Dependencies:** Minimal footprint, easy to install and deploy.
@@ -84,6 +86,7 @@ headersentinel -u https://example.com -json report.json -sarif results.sarif
 | `-follow` | Follow redirects | `true` |
 | `-json` | Path to save JSON report | `""` |
 | `-sarif` | Path to save SARIF report | `""` |
+| `-fail-threshold` | Exit with code 1 if score < threshold | `0` |
 
 ---
 
