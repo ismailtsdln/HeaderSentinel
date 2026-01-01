@@ -111,4 +111,28 @@ var SecurityHeaders = []SecurityRule{
 		Recommendation: "Set CORP to 'same-origin' or 'same-site'.",
 		Exploit:        "Speculative side-channel attacks (e.g., Spectre).",
 	},
+	{
+		Header:         "Set-Cookie",
+		CheckName:      "Insecure Cookie (Missing HttpOnly)",
+		Risk:           RiskMedium,
+		Description:    "The HttpOnly flag help to prevent XSS attacks from stealing cookies.",
+		Recommendation: "Add the 'HttpOnly' flag to all sensitive cookies.",
+		Exploit:        "Cookie theft via XSS.",
+	},
+	{
+		Header:         "Set-Cookie",
+		CheckName:      "Insecure Cookie (Missing Secure)",
+		Risk:           RiskMedium,
+		Description:    "The Secure flag ensures that the cookie is only sent over HTTPS.",
+		Recommendation: "Add the 'Secure' flag to all sensitive cookies.",
+		Exploit:        "Cookie interception over insecure connections (MITM).",
+	},
+	{
+		Header:         "Set-Cookie",
+		CheckName:      "Insecure Cookie (Missing SameSite)",
+		Risk:           RiskLow,
+		Description:    "The SameSite flag helps to protect against CSRF attacks.",
+		Recommendation: "Add 'SameSite=Lax' or 'SameSite=Strict' to your cookies.",
+		Exploit:        "Cross-Site Request Forgery (CSRF).",
+	},
 }

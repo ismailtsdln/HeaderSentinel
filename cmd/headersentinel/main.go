@@ -24,6 +24,7 @@ var (
 	jsonOutputFlag     string
 	sarifOutputFlag    string
 	concurrencyFlag    int
+	failThresholdFlag  int
 )
 
 func init() {
@@ -34,6 +35,7 @@ func init() {
 	flag.StringVar(&jsonOutputFlag, "json", "", "Output report in JSON format to file")
 	flag.StringVar(&sarifOutputFlag, "sarif", "", "Output report in SARIF format to file")
 	flag.IntVar(&concurrencyFlag, "c", 10, "Concurrency level for bulk scanning")
+	flag.IntVar(&failThresholdFlag, "fail-threshold", 0, "Exit with non-zero code if security score is below this threshold")
 }
 
 func main() {
@@ -131,6 +133,20 @@ func main() {
 			fmt.Printf("Error writing SARIF output: %v\n", err)
 		} else {
 			fmt.Printf("SARIF report saved to %s\n", sarifOutputFlag)
+		}
+	}
+
+	// CI/CD failure threshold check
+	if failThresholdFlag > 0 {
+		lowestScore := 100
+		for _, rep := range reports {
+			if rep.SecurityScore.Score < lowestScore {
+				lowestScore = rep.SecurityScore.Score
+			}
+		}
+		if lowestScore < failThresholdFlag {
+			fmt.Printf("\n[!] CI/CD Failure: Lowest security score (%d) is below threshold (%d)\n", lowestScore, failThresholdFlag)
+			os.Exit(1)
 		}
 	}
 }
